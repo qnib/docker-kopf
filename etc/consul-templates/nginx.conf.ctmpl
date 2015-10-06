@@ -1,0 +1,48 @@
+daemon off;
+worker_processes 4;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  access_log /var/log/nginx/access.log;
+  error_log /var/log/nginx/error.log;
+
+  upstream es {
+    {{range $i, $e := service "elasticsearch" "any"}}server {{$e.Address}}:{{$e.Port}};{{end}}
+  }
+
+  server {
+    listen 80;
+
+    server_name kopf.service.consul;
+
+    satisfy any;
+
+    # suppress passing basic auth to upstreams
+    proxy_set_header Authorization "";
+
+    # everybody loves caching bugs after upgrade
+    expires -1;
+
+    location / {
+      root /opt/kopf/_site;
+    }
+
+    location /es/ {
+      rewrite ^/es/(.*)$ /$1 break;
+      proxy_pass http://es;
+    }
+  }
+}
