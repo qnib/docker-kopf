@@ -1,0 +1,53 @@
+consul:
+    image: qnib/alpn-consul
+    ports:
+     - "8500:8500"
+    environment:
+    - DC_NAME=dc1
+    - CONSUL_BOOTSTRAP=true
+    dns: 127.0.0.1
+    hostname: consul
+    container_name: consul
+
+phantomjs:
+    image: ${DOCKER_REG}/qnib/phantomjs
+    hostname: phantomjs
+    container_name: phantomjs
+    volumes:
+     - ./tools/:/tools/
+     - ./reports/:/reports/
+    environment:
+     - SUPERVISOR_START_EXTERNAL=/tools/screen_consul.sh
+     - SCREENSHOT_URL="http://kopf.node.consul/?location=http://elasticsearch.service.consul:9200"
+     - SCREENSHOT_TS="10 30"
+    links:
+     - consul:consul
+
+elasticsearch:
+    image: qnib/alpn-elasticsearch
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+    - DC_NAME=dc1
+    - ES_CLUSTER_NAME=qnib
+    dns: 127.0.0.1
+    privileged: true
+    ports:
+     - "9200:9200"
+    volumes:
+     - /var/lib/elasticsearch
+    links:
+     - consul:consul
+
+kopf:
+    image: ${BUILD_IMG_NAME}
+    hostname: kopf
+    container_name: kopf
+    environment:
+     - DC_NAME=dc1
+     - ES_CLUSTER_NAME=qnib
+    dns: 127.0.0.1
+    ports:
+     - 8088:80
+    links:
+     - consul:consul

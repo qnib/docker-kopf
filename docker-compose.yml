@@ -1,0 +1,39 @@
+consul:
+    image: qnib/alpn-consul
+    ports:
+     - "8500:8500"
+    environment:
+    - DC_NAME=dc1
+    - CONSUL_BOOTSTRAP=true
+    dns: 127.0.0.1
+    hostname: consul
+    container_name: consul
+
+elasticsearch:
+    image: qnib/alpn-elasticsearch
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+    - DC_NAME=dc1
+    - ES_CLUSTER_NAME=gaikai
+    dns: 127.0.0.1
+    privileged: true
+    ports:
+     - "9200:9200"
+    volumes:
+     - /var/lib/elasticsearch
+    links:
+     - consul:consul
+
+kopf:
+    image: qnib/kopf
+    hostname: kopf
+    container_name: kopf
+    environment:
+     - DC_NAME=dc1
+     - ES_CLUSTER_NAME=gaikai
+    dns: 127.0.0.1
+    ports:
+     - 8088:80
+    links:
+     - consul:consul
