@@ -15,7 +15,7 @@ elasticsearch:
     container_name: elasticsearch
     environment:
     - DC_NAME=dc1
-    - ES_CLUSTER_NAME=gaikai
+    - ES_CLUSTER_NAME=qnib
     dns: 127.0.0.1
     privileged: true
     ports:
@@ -31,7 +31,7 @@ kopf:
     container_name: kopf
     environment:
      - DC_NAME=dc1
-     - ES_CLUSTER_NAME=gaikai
+     - ES_CLUSTER_NAME=qnib
     dns: 127.0.0.1
     ports:
      - 8088:80
