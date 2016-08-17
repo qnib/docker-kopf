@@ -9,5 +9,6 @@ ADD etc/consul-templates/nginx.conf.ctmpl /etc/consul-templates/
 ADD etc/supervisord.d/kopf_update.ini /etc/supervisord.d/
 ADD opt/kopf/kopf_external_settings.json /opt/kopf/_site/
 ADD opt/qnib/kopf/bin/healthcheck.sh /opt/qnib/kopf/bin/
+ADD etc/ssl/nginx/certificate.crt etc/ssl/nginx/certificate.key /etc/ssl/nginx/
 HEALTHCHECK --interval=2s --retries=30 --timeout=1s \
  CMD /opt/qnib/kopf/bin/healthcheck.sh
